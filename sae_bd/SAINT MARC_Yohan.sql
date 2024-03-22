@@ -19,8 +19,11 @@
 -- +----------+----------------------------------------------------------+---------------------+----------+-------------------+
 -- | etc...
 -- = Reponse question 211442.
-select num_form, fil_lib_voe_acc, select_form, num_fili, fili 
-from FORMATION natural join FILIERE natural join VOEUX natural join ETABLISSEMENT natural join STATS 
+select num_form, fil_lib_voe_acc, select_form, num_fili, fili from FORMATION 
+natural join FILIERE 
+natural join VOEUX 
+natural join ETABLISSEMENT 
+natural join STATS 
 where session =2023 and g_ea_lib_vx = "I.U.T d'Orléans" and fili = 'BUT';
 
 
@@ -38,8 +41,10 @@ where session =2023 and g_ea_lib_vx = "I.U.T d'Orléans" and fili = 'BUT';
 -- +----------+----------------------------------+------------+------+
 -- | etc...
 -- = Reponse question 211475.
-select distinct cod_uai, g_ea_lib_vx, ville_etab, fili
-from ETABLISSEMENT natural join DEPARTEMENT natural join FORMATION natural join FILIERE
+select distinct cod_uai, g_ea_lib_vx, ville_etab, fili from ETABLISSEMENT 
+natural join DEPARTEMENT
+natural join FORMATION 
+natural join FILIERE
 where dep_lib ='Creuse' and fili ='BTS';
 
 
@@ -56,7 +61,10 @@ where dep_lib ='Creuse' and fili ='BTS';
 -- +----------+-----------------------------------------------------+--------------------+-----------+
 -- | etc...
 -- = Reponse question 211486.
-SELECT cod_uai, g_ea_lib_vx, ville_etab, nb_cla_pp from ETABLISSEMENT natural join VOEUX natural join FORMATION natural join STATS
+SELECT cod_uai, g_ea_lib_vx, ville_etab, nb_cla_pp from ETABLISSEMENT 
+natural join VOEUX 
+natural join FORMATION 
+natural join STATS
 where session = 2023 and  fil_lib_voe_acc = 'Qualité, logistique industrielle et organisation' ;
 
 
@@ -72,8 +80,9 @@ where session = 2023 and  fil_lib_voe_acc = 'Qualité, logistique industrielle e
 -- +----------+----------------------------------------+-------------+
 -- | etc...
 -- = Reponse question 211521.
-SELECT cod_uai, g_ea_lib_vx, ville_etab from ETABLISSEMENT natural join DEPARTEMENT
-where dep_lib = 'Gironde' and contrat_etab = 'Public' LIKE '%agricole';
+SELECT cod_uai, g_ea_lib_vx, ville_etab from ETABLISSEMENT 
+natural join DEPARTEMENT
+where dep_lib = 'Gironde' and contrat_etab = 'Public'and g_ea_lib_vx LIKE '%Lycée agricole%';
 
 
 -- +-----------------------+--
@@ -89,7 +98,11 @@ where dep_lib = 'Gironde' and contrat_etab = 'Public' LIKE '%agricole';
 -- +-----+-------------------------+
 -- | etc...
 -- = Reponse question 211565.
-
+SELECT dep, dep_lib FROM DEPARTEMENT
+natural join ETABLISSEMENT
+natural join FORMATION
+natural join FILIERE 
+WHERE fili <> 'Licence' group by dep;
 
 
 -- +-----------------------+--
@@ -105,6 +118,10 @@ where dep_lib = 'Gironde' and contrat_etab = 'Public' LIKE '%agricole';
 -- +----------+--------------------------------------------------------------+----------------+
 -- | etc...
 -- = Reponse question 211576.
+SELECT cod_uai, g_ea_lib_vx, ville_etab FROM ETABLISSEMENT
+WHERE cod_uai IN (SELECT DISTINCT cod_uai FROM ETABLISSEMENT NATURAL JOIN VOEUX natural join FORMATION NATURAL JOIN FILIERE WHERE fil_lib_voe_acc='Droit') 
+AND 
+cod_uai IN (SELECT DISTINCT cod_uai FROM ETABLISSEMENT NATURAL JOIN VOEUX natural join FORMATION NATURAL JOIN FILIERE WHERE fil_lib_voe_acc = 'Informatique');
 
 
 
@@ -121,6 +138,16 @@ where dep_lib = 'Gironde' and contrat_etab = 'Public' LIKE '%agricole';
 -- +----------+---------------------------------------------------------------------------------+---------------------+
 -- | etc...
 -- = Reponse question 211622.
+SELECT cod_uai, g_ea_lib_vx, ville_etab
+FROM ETABLISSEMENT
+natural join DEPARTEMENT
+NATURAL JOIN VOEUX
+NATURAL JOIN FORMATION
+NATURAL JOIN FILIERE
+NATURAL JOIN ACADEMIE
+WHERE acad_mies = 'Versailles'
+and fili = 'Licence' 
+GROUP BY cod_uai, g_ea_lib_vx, ville_etab;
 
 
 
@@ -137,7 +164,9 @@ where dep_lib = 'Gironde' and contrat_etab = 'Public' LIKE '%agricole';
 -- +---------------------+-------+
 -- | etc...
 -- = Reponse question 211677.
-
+select acad_mies, count(contrat_etab)AS nb_et from ETABLISSEMENT 
+natural join ACADEMIE 
+where contrat_etab = 'Public' group by acad_mies;
 
 
 -- +-----------------------+--
@@ -153,6 +182,15 @@ where dep_lib = 'Gironde' and contrat_etab = 'Public' LIKE '%agricole';
 -- +----------------------------+------------+
 -- | etc...
 -- = Reponse question 211712.
+SELECT REGION.region_etab_aff, COUNT(VOEUX.num_voe) AS nb_voe_but FROM REGION
+NATURAL JOIN DEPARTEMENT
+NATURAL JOIN ETABLISSEMENT
+NATURAL JOIN VOEUX
+NATURAL JOIN FORMATION
+NATURAL JOIN FILIERE
+NATURAL JOIN STATS
+WHERE FILIERE.fili = 'Licence' AND STATS.session = 2023
+GROUP BY REGION.region_etab_aff;
 
 
 
@@ -161,7 +199,6 @@ where dep_lib = 'Gironde' and contrat_etab = 'Public' LIKE '%agricole';
 -- +-----------------------+--
 -- Ecrire une requ�te qui renvoie les informations suivantes:
 --  Donner la ou les formations qui ont re�u le plus de voeux en phase principale en 2023
-
 -- Voici le d�but de ce que vous devez obtenir.
 -- ATTENTION � l'ordre des colonnes et leur nom!
 -- +----------+-------------+--------------+-------------------+-----------+
@@ -170,6 +207,12 @@ where dep_lib = 'Gironde' and contrat_etab = 'Public' LIKE '%agricole';
 -- | etc...
 -- = Reponse question 211756.
 
+SELECT cod_uai, g_ea_lib_vx, ville_etab, fili, nb_voe_pp from ETABLISSEMENT 
+NATURAL JOIN VOEUX 
+NATURAL JOIN STATS
+NATURAL JOIN FORMATION
+NATURAL JOIN FILIERE WHERE session = 2023 group by cod_uai, g_ea_lib_vx, ville_etab, fili
+ORDER BY count(nb_voe_pp) desc limit 1;
 
 
 -- +-----------------------+--
@@ -187,6 +230,11 @@ where dep_lib = 'Gironde' and contrat_etab = 'Public' LIKE '%agricole';
 -- = Reponse question 211802.
 
 
+select acad_mies from ACADEMIE
+natural join DEPARTEMENT
+natural join STATS group by acad_mies
+having (select sum(capa_fin) from STATS where session = 2022) > (select sum(capa_fin) from STATS where session = 2023);
+
 
 -- +-----------------------+--
 -- * Question 211857 : 2pts --
@@ -201,6 +249,13 @@ where dep_lib = 'Gironde' and contrat_etab = 'Public' LIKE '%agricole';
 -- +-------------------+---------+
 -- | etc...
 -- = Reponse question 211857.
+
+SELECT fili, COUNT(fil_lib_voe_acc) AS nb_form FROM FILIERE
+NATURAL JOIN FORMATION
+NATURAL JOIN VOEUX
+NATURAL JOIN STATS 
+WHERE session = 2023 GROUP BY fili;
+
 
 
 
@@ -217,6 +272,12 @@ where dep_lib = 'Gironde' and contrat_etab = 'Public' LIKE '%agricole';
 -- +-------------------+----------+
 -- | etc...
 -- = Reponse question 211879.
+SELECT fili, count(distinct nb_voe_pp) AS nb_voeux FROM FILIERE
+NATURAL JOIN FORMATION 
+NATURAL JOIN VOEUX 
+NATURAL JOIN STATS
+WHERE session = 2023 AND select_form = 'formation selective' GROUP BY fili;
+
 
 
 
